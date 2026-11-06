@@ -1,0 +1,651 @@
+<title>Road to 21.1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one working column. Race bib and a London skyline that lights up with progress, then the chart and the weeks. */
+:root {
+  --bg: #EDF0F1; --surface: #FFFFFF; --ink: #0F2438; --muted: #4F6475; --line: #D2DBE1;
+  --race: #C8102E; --on-race: #FFFFFF;
+  --outdoor: #17663F; --outdoor-soft: #DCEFE3;
+  --pel: #5243B8; --pel-soft: #E7E4FA;
+  --food: #8A5300; --food-soft: #F8EFD3;
+  --bar-empty: #C3D0D9;
+  --sky: #DCE7EE; --sky-back: #C7D5DF; --sky-off: #8FA3B2; --lit: #C98A00; --thames: #2F6283; --wave: #6E9BB8; --bus-glass: #DCE7EE;
+  --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0C1A28; --surface: #142636; --ink: #E8EEF3; --muted: #9DB1C1; --line: #28405A;
+  --race: #FF5A5F; --on-race: #23060A;
+  --outdoor: #57CF93; --outdoor-soft: #123A28;
+  --pel: #AFA2F7; --pel-soft: #2A2550;
+  --food: #E3B341; --food-soft: #3A2E10;
+  --bar-empty: #2F475C;
+  --sky: #122A42; --sky-back: #1B3650; --sky-off: #47637C; --lit: #FFC53D; --thames: #0A3A5C; --wave: #3C7CA6; --bus-glass: #122A42; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0C1A28; --surface: #142636; --ink: #E8EEF3; --muted: #9DB1C1; --line: #28405A;
+  --race: #FF5A5F; --on-race: #23060A;
+  --outdoor: #57CF93; --outdoor-soft: #123A28;
+  --pel: #AFA2F7; --pel-soft: #2A2550;
+  --food: #E3B341; --food-soft: #3A2E10;
+  --bar-empty: #2F475C;
+  --sky: #122A42; --sky-back: #1B3650; --sky-off: #47637C; --lit: #FFC53D; --thames: #0A3A5C; --wave: #3C7CA6; --bus-glass: #122A42; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--body); }
+.wrap {
+  max-width: 880px; margin: 0 auto; display: grid; gap: 40px;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap > * { min-width: 0; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; text-wrap: balance; line-height: 1.05; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.3rem; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+.section { display: grid; gap: 16px; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--race); outline-offset: 2px; }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+.hero > * { min-width: 0; }
+.eyebrow { font-size: .8125rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--race); }
+h1 { font-size: clamp(3.25rem, 11vw, 5.5rem); font-style: italic; margin-block: 4px 12px; }
+.hero p.lede { max-width: 54ch; }
+.bib {
+  position: relative; width: 190px; padding: 20px 16px 16px; text-align: center;
+  background: var(--race); color: var(--on-race); border-radius: 6px; transform: rotate(1.5deg);
+}
+.bib i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--bg); }
+.bib i:nth-child(1) { top: 8px; left: 8px; } .bib i:nth-child(2) { top: 8px; right: 8px; }
+.bib i:nth-child(3) { bottom: 8px; left: 8px; } .bib i:nth-child(4) { bottom: 8px; right: 8px; }
+.bib b { display: block; font: italic 700 5rem/.95 var(--display); font-variant-numeric: tabular-nums; }
+.bib span { font-size: .8125rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+/* London skyline */
+.sky { display: grid; gap: 12px; }
+.scene { display: block; width: 100%; height: auto; background: var(--sky); border-radius: 10px; }
+.lm { color: var(--sky-off); transition: color .4s; }
+.lm.lit { color: var(--lit); }
+#bus { transition: transform .5s ease; }
+.lm-list { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.lm-item { min-width: 0; font-size: .8125rem; line-height: 1.35; color: var(--muted); border-top: 3px solid var(--bar-empty); padding-top: 6px; }
+.lm-item b { display: block; color: var(--ink); font-weight: 600; }
+.lm-item.lit { border-color: var(--lit); }
+.bar { flex-direction: column; justify-content: flex-end; color: var(--sky-off); }
+.bar i { flex: none; }
+.bar svg { display: block; flex: none; width: 100%; height: 20px; margin-bottom: 2px; }
+.bar.done svg { color: var(--lit); }
+.pill.mark { border-color: var(--lit); color: var(--ink); }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; border-block: 1px solid var(--line); padding-block: 16px; }
+.stats > div { min-width: 0; }
+.stat-num { font: 700 2.25rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.stat-num small { font-size: 1.125rem; color: var(--muted); font-weight: 600; }
+.meter { height: 6px; background: var(--bar-empty); border-radius: 3px; overflow: hidden; margin-block: 8px 4px; }
+.meter div { height: 100%; width: 0; background: var(--ink); transition: width .25s; }
+#saveStatus { min-height: 1.3em; }
+
+/* Up next */
+.next { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 8px; }
+
+/* Rows */
+.row {
+  display: grid; grid-template-columns: 76px 28px minmax(0, 1fr); gap: 12px; align-items: start;
+  padding-block: 12px; border-top: 1px solid var(--line); cursor: pointer;
+}
+.row:first-child { border-top: 0; }
+.row.static { cursor: default; color: var(--muted); }
+.next .row { border: 0; padding: 0; }
+.day { font-size: .8125rem; line-height: 1.3; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 3px; }
+.day b { display: block; color: var(--ink); font-weight: 600; }
+.row input {
+  appearance: none; -webkit-appearance: none; margin: 0; width: 28px; height: 28px; cursor: pointer;
+  border: 2px solid var(--muted); border-radius: 7px; background: var(--surface); display: grid; place-items: center;
+}
+.row input::after {
+  content: ""; width: 7px; height: 13px; margin-top: -3px; border: solid var(--surface);
+  border-width: 0 3px 3px 0; transform: rotate(45deg); opacity: 0;
+}
+.row input:checked { background: var(--tone); border-color: var(--tone); }
+.row input:checked::after { opacity: 1; }
+.row input:disabled { cursor: default; opacity: .7; }
+.t-outdoor { --tone: var(--outdoor); --tone-soft: var(--outdoor-soft); }
+.t-peloton { --tone: var(--pel); --tone-soft: var(--pel-soft); }
+.t-food { --tone: var(--food); --tone-soft: var(--food-soft); }
+.t-race { --tone: var(--race); --tone-soft: transparent; }
+.t-rest { --tone: var(--muted); --tone-soft: var(--line); }
+.row-title { font-weight: 600; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.chip {
+  font-size: .6875rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--tone); background: var(--tone-soft); border-radius: 4px; padding: 1px 6px;
+}
+.t-race .chip { border: 1px solid var(--race); }
+.row-detail { font-size: .9375rem; color: var(--muted); }
+.row input:checked ~ .row-text .row-title span:first-child { color: var(--muted); }
+
+/* Chart */
+.chart { display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 8px; }
+.axis { position: relative; height: 170px; font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.axis span { position: absolute; right: 0; transform: translateY(50%); }
+.plot { position: relative; height: 170px; border-bottom: 1px solid var(--muted); }
+.grid { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); }
+.bars { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); gap: 3px; }
+.bar { display: flex; align-items: flex-end; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 3px 3px 0 0; }
+.bar:hover { background: var(--line); }
+.bar i { display: block; width: 100%; background: var(--bar-empty); border-radius: 2px 2px 0 0; }
+.bar.done i { background: var(--outdoor); }
+.bar.now i { box-shadow: inset 0 0 0 2px var(--ink); }
+.bar.race i { background: var(--race); }
+.scale { grid-column: 2; display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); gap: 3px; font-size: .75rem; }
+.scale span { white-space: nowrap; }
+.months { color: var(--muted); padding-top: 4px; }
+.phases { padding-top: 8px; font-weight: 600; }
+.phases span { border-top: 3px solid var(--ink); padding-top: 2px; overflow: hidden; }
+.phases span:nth-child(even) { border-color: var(--muted); }
+
+/* Weeks */
+.weeks { display: grid; }
+.phase-head { display: grid; gap: 4px; padding-block: 24px 8px; }
+.phase-head:first-child { padding-top: 0; }
+details.week { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; scroll-margin-top: 16px; }
+details.week.now { border-color: var(--ink); border-width: 2px; }
+summary {
+  list-style: none; cursor: pointer; padding: 12px 16px; border-radius: 10px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: center;
+}
+summary::-webkit-details-marker { display: none; }
+.week-name { font: 700 1.4rem/1.1 var(--display); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.pill { font: 600 .6875rem/1.5 var(--body); letter-spacing: .05em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); }
+.pill.here { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.week-count { text-align: right; font: 700 1.25rem/1 var(--display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.week-count.complete { color: var(--outdoor); }
+.week-meta { font-size: .875rem; color: var(--muted); grid-column: 1 / -1; }
+.week-body { padding: 0 16px 8px; border-top: 1px solid var(--line); }
+.week-note { font-size: .9375rem; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.week-note + .row { border-top: 0; }
+
+/* Guides */
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; }
+.cards > div { display: grid; gap: 6px; align-content: start; min-width: 0; }
+ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.fine { font-size: .875rem; color: var(--muted); max-width: 70ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: .875rem; color: var(--muted); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+
+@media (max-width: 620px) {
+  .wrap { gap: 32px; padding-block: 20px 48px; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .bib { width: 100%; max-width: 240px; order: -1; }
+  .bib b { font-size: 4rem; }
+  .stats { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+  .lm-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bar svg { display: none; }
+  .row { grid-template-columns: 52px 28px minmax(0, 1fr); gap: 10px; }
+  .phases, .months { font-size: .6875rem; }
+  .bars, .scale { gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .meter div, .lm, #bus { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">London Landmarks Half Marathon · Sunday 4 April 2027</div>
+      <h1>Road to 21.1</h1>
+      <p class="lede">21 weeks of outdoor runs and Peloton sessions, starting Monday 9 November. Tick each session as you finish it.</p>
+    </div>
+    <div class="bib" aria-label="Countdown to race day"><i></i><i></i><i></i><i></i><b id="days">–</b><span id="daysLabel">days to go</span></div>
+  </header>
+
+  <section class="sky" aria-labelledby="skyH">
+    <svg class="scene" viewBox="0 0 880 205" role="img" aria-labelledby="skyH skyD">
+      <desc id="skyD">An illustrated London skyline along the Thames with Big Ben, the London Eye, St Paul's Cathedral, the Gherkin, Tower Bridge and the Shard. Landmarks light up as milestone long runs are ticked, and a red bus shows your session progress.</desc>
+      <path fill="var(--sky-back)" d="M0 170V140h24v-14h20v20h96v-24h22v18h30v28h36v-20h32v-16h26v18h96v-32h20v-14h24v30h28v-20h22v-12h26v26h30v-34h24v18h34v32h40v-22h24v-16h22v26h32v30z"/>
+      <g class="lm" data-lm="0">
+        <path fill="currentColor" d="M86 170v-38h6v-10l3 -6 3 6v10h14v-10l3 -6 3 6v10h14v-10l3 -6 3 6v10h6v38z"/>
+        <g id="lm0">
+          <path fill="currentColor" d="M58 170V62h24v108z"/>
+          <path fill="currentColor" d="M56 62v-14h28v14z"/>
+          <path fill="currentColor" d="M58 48L70 8l12 40z"/>
+          <circle cx="70" cy="74" r="8.5" fill="var(--sky)"/>
+          <path d="M70 74V68M70 74l4 2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        </g>
+      </g>
+      <g class="lm" data-lm="1">
+        <g id="lm1" fill="none" stroke="currentColor" stroke-linecap="round">
+          <circle cx="210" cy="102" r="52" stroke-width="4"/>
+          <path stroke-width="1.2" d="M210 50v104M158 102h104M173 65l74 74M247 65l-74 74"/>
+          <path stroke-width="4" d="M210 102l-24 68M210 102l-6 68"/>
+          <g fill="currentColor" stroke="none">
+            <circle cx="210" cy="102" r="5"/>
+            <circle cx="210" cy="50" r="4"/><circle cx="247" cy="65" r="4"/><circle cx="262" cy="102" r="4"/><circle cx="247" cy="139" r="4"/>
+            <circle cx="210" cy="154" r="4"/><circle cx="173" cy="139" r="4"/><circle cx="158" cy="102" r="4"/><circle cx="173" cy="65" r="4"/>
+          </g>
+        </g>
+      </g>
+      <g class="lm" data-lm="2">
+        <g id="lm2" fill="currentColor">
+          <path d="M326 170v-36h88v36z"/>
+          <path d="M329 134v-24l5 -9 5 9v24zM401 134v-24l5 -9 5 9v24z"/>
+          <path d="M350 134v-26h40v26z"/>
+          <path d="M347 108c0 -24 11 -38 23 -40 12 2 23 16 23 40z"/>
+          <path d="M366 68V52h8v16z"/>
+          <path d="M369 52V40h2v12z"/><path d="M366 44h8v2h-8z"/>
+          <path fill="var(--sky)" d="M356 116h4v14h-4zM368 116h4v14h-4zM380 116h4v14h-4zM336 146h6v14h-6zM356 146h6v14h-6zM378 146h6v14h-6zM398 146h6v14h-6z"/>
+        </g>
+      </g>
+      <g class="lm" data-lm="3">
+        <g id="lm3">
+          <path fill="currentColor" d="M471 170c-9 -56 5 -116 19 -130 14 14 28 74 19 130z"/>
+          <path stroke="var(--sky)" stroke-width="1.6" fill="none" d="M472 138l36 -22M471 112l35 -22M476 86l24 -16M471 160l39 -24"/>
+        </g>
+      </g>
+      <g class="lm" data-lm="4">
+        <g id="lm4">
+          <path fill="none" stroke="currentColor" stroke-width="3" d="M610 76Q588 126 556 140M710 76Q732 126 764 140"/>
+          <path fill="currentColor" d="M556 140h208v7H556z"/>
+          <path fill="currentColor" d="M608 170V78h24v92zM688 170V78h24v92z"/>
+          <path fill="currentColor" d="M605 78l15 -18 15 18zM685 78l15 -18 15 18z"/>
+          <path fill="currentColor" d="M632 84h56v5h-56zM632 94h56v4h-56z"/>
+          <path fill="var(--sky)" d="M616 92c0 -6 8 -6 8 0v14h-8zM696 92c0 -6 8 -6 8 0v14h-8zM614 150c0 -9 12 -9 12 0v20h-12zM694 150c0 -9 12 -9 12 0v20h-12z"/>
+        </g>
+      </g>
+      <g class="lm" data-lm="5">
+        <g id="lm5">
+          <path fill="currentColor" d="M784 170L806 26l2 6 3 -14 3 12 3 -4 21 144z"/>
+          <path stroke="var(--sky)" stroke-width="1.4" fill="none" d="M811 42v128"/>
+        </g>
+      </g>
+      <path fill="var(--muted)" d="M0 170h880v6H0z"/>
+      <path fill="var(--thames)" d="M0 176h880v29H0z"/>
+      <path fill="none" stroke="var(--wave)" stroke-width="2" stroke-linecap="round" d="M30 188q10 -5 20 0t20 0M170 196q10 -5 20 0t20 0M330 187q10 -5 20 0t20 0M500 196q10 -5 20 0t20 0M650 188q10 -5 20 0t20 0M790 196q10 -5 20 0t20 0"/>
+      <g id="bus">
+        <path fill="var(--race)" d="M4 170v-5H2v-27q0 -4 4 -4h38q4 0 4 4v27h-2v5z"/>
+        <path fill="var(--bus-glass)" d="M7 139h7v7H7zM17 139h7v7h-7zM27 139h7v7h-7zM37 139h7v7h-7zM7 151h7v7H7zM17 151h7v7h-7zM27 151h7v7h-7zM37 151h7v10h-7z"/>
+        <circle cx="13" cy="168" r="4" fill="var(--ink)"/><circle cx="37" cy="168" r="4" fill="var(--ink)"/>
+      </g>
+    </svg>
+    <div>
+      <h2 id="skyH" style="font-size:1.5rem">Light up London</h2>
+      <p class="muted small">Tick each milestone long run to light up a landmark. The red bus moves along the river with every session you finish.</p>
+    </div>
+    <div class="lm-list" id="lmList"></div>
+  </section>
+
+  <section class="section" aria-label="Your progress">
+    <div class="stats">
+      <div><div class="stat-num"><span id="sDone">0</span> <small>/ <span id="sTotal">0</span></small></div><div class="meter"><div id="sBar"></div></div><div class="small muted">Sessions done</div></div>
+      <div><div class="stat-num"><span id="mDone">0</span> <small>/ <span id="mTotal">0</span> km</small></div><div class="meter"><div id="mBar"></div></div><div class="small muted">Outdoor km</div></div>
+      <div><div class="stat-num"><span id="nDone">0</span> <small>/ <span id="nTotal">0</span></small></div><div class="meter"><div id="nBar"></div></div><div class="small muted">Nutrition habits</div></div>
+    </div>
+    <p id="saveStatus" class="small muted" role="status" aria-live="polite">Saved in this browser.</p>
+  </section>
+
+  <section class="section" aria-labelledby="nextH">
+    <div class="next">
+      <h2 id="nextH" style="font-size:1.5rem">Up next</h2>
+      <div id="next"></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="chartH">
+    <div>
+      <h2 id="chartH">Long run, week by week</h2>
+      <p class="muted small">Bars turn green when you tick that week's long run. Select a bar to open the week.</p>
+    </div>
+    <div class="chart">
+      <div class="axis" aria-hidden="true" id="axis"></div>
+      <div class="plot"><div id="gridlines"></div><div class="bars" id="bars"></div></div>
+      <div class="scale months" id="months" aria-hidden="true"></div>
+      <div class="scale phases" id="phaseScale" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="planH">
+    <div style="display:grid;gap:8px">
+      <h2 id="planH">The plan</h2>
+      <div class="legend">
+        <span class="t-outdoor"><span class="chip">Outdoor</span> run outside</span>
+        <span class="t-peloton"><span class="chip">Peloton</span> Bike or floor class</span>
+        <span class="t-food"><span class="chip">Nutrition</span> this week's habit</span>
+      </div>
+    </div>
+    <div class="weeks" id="weeks"></div>
+  </section>
+
+  <section class="section" aria-labelledby="foodH">
+    <h2 id="foodH">Food and fuelling guide</h2>
+    <div class="cards">
+      <div><h3>Every day</h3><ul>
+        <li>Build most meals from a carb, a protein, and vegetables or fruit.</li>
+        <li>Aim for about 1.4–1.7 g of protein per kg of body weight, spread across the day.</li>
+        <li>Eat more carbs on and before bigger training days. Don't diet hard during the plan: under-eating raises injury risk.</li>
+      </ul></div>
+      <div><h3>Before a run</h3><ul>
+        <li>Under 60 minutes: a normal meal earlier, or a small snack if you're hungry. Many people run fine on nothing for short easy runs.</li>
+        <li>Long runs: a carb-rich meal 2–3 hours before, such as a bagel with peanut butter and a banana, or oatmeal with honey.</li>
+        <li>Closer to the start, keep it small: half a banana or a slice of toast.</li>
+      </ul></div>
+      <div><h3>During a run</h3><ul>
+        <li>Runs over about 75 minutes: take 30–60 g of carbs per hour. One gel is usually 20–25 g, so read the label.</li>
+        <li>Start around minute 45 and repeat every 30–40 minutes, with water.</li>
+        <li>Gels, chews and sports drink all work. Find what your stomach likes, because that's what you'll use on race day.</li>
+      </ul></div>
+      <div><h3>After a run</h3><ul>
+        <li>Within about an hour of harder runs, have carbs plus 20–30 g of protein.</li>
+        <li>Easy options: chocolate milk, Greek yoghurt with granola, eggs on toast, or a rice bowl with chicken.</li>
+        <li>Rehydrate until your urine is pale yellow.</li>
+      </ul></div>
+      <div><h3>Hydration</h3><ul>
+        <li>Drink to thirst through the day, and more in heated rooms or on the Peloton.</li>
+        <li>On runs over an hour, carry fluid or plan a route past water.</li>
+        <li>Add electrolytes on long or sweaty sessions. Don't force down large amounts of plain water.</li>
+      </ul></div>
+      <div><h3>Race days: 2–4 April</h3><ul>
+        <li><b>Friday and Saturday:</b> make carbs the biggest part of each meal, and cut back on high-fibre and very fatty foods.</li>
+        <li><b>Sunday:</b> eat your rehearsed breakfast 2–3 hours before the start, sip water, and carry your rehearsed fuel.</li>
+        <li><b>The rule:</b> nothing new on race day. That covers food, gels, shoes and kit.</li>
+      </ul></div>
+    </div>
+    <p class="fine">This is general guidance, not medical or dietetic advice. Talk to your doctor before starting if you have a health condition, and see them or a sports dietitian about supplements, ongoing fatigue, or a history of disordered eating.</p>
+  </section>
+
+  <section class="section" aria-labelledby="rulesH">
+    <h2 id="rulesH">How to use the plan</h2>
+    <div class="cards">
+      <div><h3>How hard is easy?</h3><p>You can speak in full sentences. Most of your running should feel like this, even if it means slowing down as the distances grow.</p></div>
+      <div><h3>Why the Bike and the road split</h3><p>Your legs need to get used to running, so from week 9 the hard running happens outdoors on Tuesdays. The Bike builds fitness without the impact. Your week 2 FTP test sets your Power Zones, and Zones 2–3 should feel steady enough to talk in short sentences.</p></div>
+      <div><h3>Bad weather and dark evenings</h3><p>Ice, lightning or dangerous cold? Ride the Bike for the time your run would take, using Zone 4 for any hard efforts. Try to move a long run to another day rather than replacing it. On dark evenings, stick to well-lit routes and wear something reflective.</p></div>
+      <div><h3>Missed a session?</h3><p>Let it go and carry on with today's session. Never double up. If you miss a full week, repeat the last week you completed. Protect the long run first.</p></div>
+      <div><h3>Pain</h3><p>Muscle soreness is normal. Sharp pain, pain that changes your stride, or pain that gets worse as you run means stop and rest for two days. See a doctor or physio if it's still there.</p></div>
+      <div><h3>Saturday parkrun</h3><p>Run it easy, because the long run comes the next morning. Weeks 4, 8 and 12 are the exceptions: Sunday is short, so race it and track your time. If your parkrun is cancelled, run 5 km on your own or ride for 30 minutes.</p></div>
+      <div><h3>What is race effort?</h3><p>Harder than your long runs but still controlled, at a pace you could hold for about two hours. Your parkrun times and the week 16 tune-up will help you find it.</p></div>
+      <div><h3>Shoes</h3><p>Get running shoes fitted now, and a fresh pair by late February so they're worn in by race day.</p></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const START = new Date(2026, 10, 9);
+  const RACE = new Date(2027, 3, 4);
+  const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const PHASES = [
+    { name: "Base", from: 1, to: 8, about: "Build on your 5 km runs and stretch the Sunday run to 10 km. Short bursts of speed start on the Bike." },
+    { name: "Build", from: 9, to: 16, about: "Tuesdays become your hard running day, with tempo and hills, and the long run reaches 14 km. Fuelling practice starts in week 10." },
+    { name: "Peak", from: 17, to: 18, about: "Your biggest two weeks, finishing with the 18 km dress rehearsal." },
+    { name: "Taper", from: 19, to: 21, about: "Do less, stay sharp and arrive rested. Feeling restless is normal." }
+  ];
+
+  /* rec = Monday recovery min, tue/sun = outdoor km, wed = Bike session, str = Thursday strength min. Saturday is always parkrun. */
+  const PARKRUN_KM = 5;
+  const PARKRUN_RACE_WEEKS = [4, 8, 12];
+  const WEEKS = [
+    { rec: 20, tue: 5, wed: [30, "Ride with pickups", "Zones 2–3, plus 4 × 20 seconds hard with full recovery."], str: 15, sun: 6, food: "Check your hydration: drink through the day until your urine stays pale yellow." },
+    { rec: 20, tue: 5, wed: [30, "FTP test ride", "Take a Peloton FTP test to set your Power Zones. If you've done one in the last couple of months, ride Zones 2–3 instead."], str: 15, sun: 7, food: "Get 20–30 g of protein at breakfast: eggs, Greek yoghurt or a protein smoothie." },
+    { rec: 20, tue: 6, wed: [30, "Steady blocks", "2 × 5 min in Zone 3, with 3 min in Zone 2 between."], str: 20, sun: 8, food: "After your long run, eat carbs plus 20–30 g of protein within an hour." },
+    { rec: 20, tue: 5, wed: [30, "Easy ride", "Low Impact ride. Very relaxed."], str: 15, sun: 6, cut: true, food: "Fill half your plate with vegetables or fruit at two meals each day." },
+    { rec: 25, tue: 6, wed: [30, "Intervals", "Power Zone class: 6 × 1 min in Zone 4–5, with 2 min in Zone 2 between."], str: 20, sun: 8, food: "Test a small pre-run snack, such as half a banana or toast, 30–60 minutes before a run." },
+    { rec: 25, tue: 6, wed: [30, "Intervals", "Power Zone class: 5 × 2 min in Zone 4, with 2 min in Zone 2 between."], str: 20, sun: 9, food: "Plan a carb-rich dinner for each Saturday night: pasta, rice, potatoes or noodles." },
+    { rec: 25, tue: 6, wed: [30, "Steady ride", "Power Zone Endurance class in Zones 2–3. Keep it relaxed this week."], str: 20, sun: 10, food: "Keep breakfast and post-run meals steady through the holidays. Treats are fine. If you drink, keep it light the night before a long run.", note: "Christmas week. Friday's rest day falls on 25 December, with parkrun on the 26th and your long run on the 27th. Check that your parkrun is on, as holiday schedules vary." },
+    { rec: 20, tue: 5, wed: [30, "Easy ride", "Low Impact ride. Very relaxed."], str: 15, sun: 7, cut: true, food: "Eat iron-rich foods, such as beans, lean red meat or spinach, with vitamin C from fruit or peppers.", note: "New Year's Day is your Friday rest day. Check that your parkrun is on for the 2nd, as holiday schedules vary." },
+    { rec: 25, tue: 6, tueTitle: "Tempo run", tueNote: "2 km easy, 2 × 6 min comfortably hard with 3 min jogging between, then easy to finish.", wed: [35, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 25, sun: 10, food: "Get calcium and vitamin D from dairy, fortified foods or oily fish. Winter sun won't cover your vitamin D." },
+    { rec: 25, tue: 6, tueTitle: "Hill run", tueNote: "Warm up easy, 6 × 90 seconds up a hill at a strong effort, jog back down each time, then easy to finish.", wed: [35, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 25, sun: 11, fuel: true, food: "Start fuelling practice: take your first gel or chews at minute 45 of the long run." },
+    { rec: 25, tue: 7, tueTitle: "Tempo run", tueNote: "2 km easy, 2 × 10 min comfortably hard with 3 min jogging between, then easy to finish.", wed: [40, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 25, sun: 12, fuel: true, food: "Keep a simple log of what you ate before each long run and how your stomach felt." },
+    { rec: 20, tue: 5, wed: [30, "Easy ride", "Low Impact ride. Very relaxed."], str: 20, sun: 8, cut: true, food: "Rehearse your race breakfast 2–3 hours before Sunday's run, even though it's a shorter one." },
+    { rec: 30, tue: 7, tueTitle: "Interval run", tueNote: "2 km easy, 5 × 3 min hard with 2 min jogging between, then easy to finish.", wed: [40, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 30, sun: 12, fuel: true, food: "Weigh yourself before and after a long run. A big drop tells you to drink more or add electrolytes next time." },
+    { rec: 30, tue: 7, tueTitle: "Tempo run", tueNote: "2 km easy, 20 min straight at comfortably hard, then easy to finish.", wed: [45, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 30, sun: 13, fuel: true, food: "Work up toward 30–60 g of carbs per hour on the long run." },
+    { rec: 30, tue: 8, tueTitle: "Hill run", tueNote: "Warm up easy, 8 × 90 seconds up a hill at a strong effort, jog back down each time, then easy to finish.", wed: [45, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 30, sun: 14, fuel: true, food: "Check your protein: spread it across 3–4 meals rather than one big dinner." },
+    { rec: 20, tue: 6, wed: [30, "Easy ride", "Low Impact ride. Very relaxed."], str: 20, sun: 10, sunTitle: "Tune-up, 10 km", sunNote: "Run a local 10K, or run 10 km with the last 3 km at your hoped-for race effort. Use the result to set your race pace.", cut: true, food: "Treat the tune-up like race day: same dinner, same breakfast, same fuel." },
+    { rec: 30, tue: 8, tueTitle: "Race-effort run", tueNote: "Easy warm-up, 3 × 10 min at race effort with 2 min jogging between, then easy to finish.", wed: [45, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 20, sun: 16, fuel: true, food: "If you use caffeine, test it on the long run: a coffee or caffeinated gel, never for the first time on race day." },
+    { rec: 30, tue: 8, tueTitle: "Race-effort run", tueNote: "Easy warm-up, 2 × 15 min at race effort with 3 min jogging between, then easy to finish.", wed: [50, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Keep it steady: your hard running happens on Tuesday."], str: 20, sun: 18, sunNote: "Your dress rehearsal and longest run. Wear your race kit, start at your race start time, and don't chase speed. The taper and the crowd will carry you through the last 3 km on race day.", fuel: true, food: "Run your whole race plan: Saturday dinner, breakfast, gels and drinks. Check which fuel the race provides on course." },
+    { rec: 25, tue: 7, tueTitle: "Race-effort run", tueNote: "Easy warm-up, 2 × 8 min at race effort with 3 min jogging between, then easy to finish.", wed: [35, "Endurance ride", "Power Zone Endurance class in Zones 2–3. Finish feeling fresh."], str: 15, sun: 13, fuel: true, food: "Training drops, but keep eating normally. Don't cut carbs or start a diet now." },
+    { rec: 20, tue: 6, tueTitle: "Easy run with pickups", tueNote: "Conversational effort, plus 4 × 30 seconds at race effort. Stay fresh.", wed: [30, "Easy ride", "Low Impact ride. Very relaxed."], str: 10, strNote: "Light core and mobility only. Skip heavy leg work.", sun: 9, sunTitle: "Last longer run, 9 km", sunNote: "Keep it comfortable and practise your race-morning routine.", food: "Buy your race fuel and pack your bag. Check travel and start-time details for race morning." },
+    { race: true, rec: 20, tue: 5, wed: [20, "Easy spin", "Very easy pedalling in Zones 1–2. Finish feeling fresher than you started."], thu: 3, thuNote: "Very easy, then 4 × 20-second strides to stay sharp.", food: "From Friday, make carbs the centre of your meals, keep them familiar, and have your race breakfast ready for Sunday." }
+  ];
+
+  /* Lit by ticking that week's Sunday long run. Ordered west to east along the river. */
+  const LANDMARKS = [
+    { name: "Big Ben", week: 3, view: "50 4 40 168" },
+    { name: "London Eye", week: 7, view: "150 44 120 128" },
+    { name: "St Paul's", week: 11, view: "322 36 96 136" },
+    { name: "The Gherkin", week: 15, view: "460 36 60 136" },
+    { name: "Tower Bridge", week: 17, view: "552 58 216 114" },
+    { name: "The Shard", week: 18, view: "780 16 60 156" }
+  ];
+  const markFor = n => LANDMARKS.findIndex(l => l.week === n);
+
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function fmt(d) { return d.getDate() + " " + MONTHS[d.getMonth()]; }
+  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function dayDiff(a, b) { return Math.round((midnight(a) - midnight(b)) / 86400000); }
+  function phaseOf(n) { return PHASES.find(p => n >= p.from && n <= p.to); }
+
+  /* Expand the table into dated sessions. */
+  const easy = (n, withStrides) => withStrides && n >= 9 ? "Conversational effort, then 4 × 20-second strides at the end." : "Conversational effort: you can speak in full sentences.";
+  function sessionsFor(w, i) {
+    const n = i + 1, mon = addDays(START, i * 7);
+    const s = (d, type, title, detail, km) => ({ id: "w" + n + "-" + DAY_NAMES[d].toLowerCase(), week: n, date: addDays(mon, d), day: d, type, title, detail, km: km || 0 });
+    const recovery = s(0, "peloton", "Recovery, " + w.rec + " min", "Low Impact ride, then 5–10 minutes of stretching. Skip it if you feel worn out.");
+    const tue = s(1, "outdoor", (w.tueTitle || "Easy run") + ", " + w.tue + " km", w.tueNote || easy(n, true), w.tue);
+    const wed = s(2, "peloton", w.wed[1] + ", " + w.wed[0] + " min", w.wed[2]);
+    if (w.race) return [recovery, tue, wed,
+      s(3, "outdoor", "Easy run, " + w.thu + " km", w.thuNote, w.thu),
+      s(5, "rest", "Race eve: full rest", "Skip parkrun today, or go along to walk or volunteer. Lay out your kit, pin your bib, charge your watch and check the start logistics."),
+      s(6, "race", "Race day, 21.1 km", "Start slower than you think you should. Run the first 5 km easy, settle in for the middle, and take your fuel on schedule. Enjoy the finish.", 21.1)
+    ];
+    const strength = phaseOf(n).name === "Peak" ? "Peloton strength class for legs, glutes and core. Keep it moderate this close to your big runs." : "Peloton strength class for legs, glutes and core, with a mat and dumbbells if you have them.";
+    const racing = PARKRUN_RACE_WEEKS.includes(n);
+    const parkrunNote = racing
+      ? "Lighter week, so go for it: warm up, run hard and note your time. Tomorrow's run is short and easy."
+      : phaseOf(n).name === "Peak"
+        ? "Very easy, and walk some if you like. Skip it if your legs are tired, because tomorrow's long run comes first."
+        : "Easy and chatty: treat it as a warm-up for tomorrow's long run, and leave your watch out of it.";
+    return [recovery, tue, wed,
+      s(3, "peloton", "Strength, " + w.str + " min", w.strNote || strength),
+      s(5, "outdoor", racing ? "parkrun time trial, 5 km" : "parkrun, 5 km", parkrunNote, PARKRUN_KM),
+      s(6, "outdoor", w.sunTitle || "Long run, " + w.sun + " km", w.sunNote || (w.fuel ? "Keep it easy and practise your fuelling." : "Keep it easy. Finishing is the only goal."), w.sun)
+    ];
+  }
+  const ALL = WEEKS.map(sessionsFor);
+  const FLAT = ALL.flat();
+  const FOOD_IDS = WEEKS.map((_, i) => "w" + (i + 1) + "-food");
+  const TOTAL_KM = FLAT.reduce((a, s) => a + s.km, 0);
+
+  /* Rendering */
+  const $ = id => document.getElementById(id);
+  const CHIP = { outdoor: "Outdoor", peloton: "Peloton", race: "Race", food: "Nutrition", rest: "Rest" };
+  function rowHtml(s, showPrefix) {
+    return '<label class="row t-' + s.type + '">' +
+      '<span class="day"><b>' + DAY_NAMES[s.day] + '</b>' + fmt(s.date) + '</span>' +
+      '<input type="checkbox" data-id="' + s.id + '"' + (showPrefix ? ' id="next-' + s.id + '"' : ' id="' + s.id + '"') + '>' +
+      '<span class="row-text"><span class="row-title"><span>' + s.title + '</span><span class="chip">' + CHIP[s.type] + '</span></span>' +
+      '<span class="row-detail">' + s.detail + '</span></span></label>';
+  }
+  function weekDates(i) {
+    const mon = addDays(START, i * 7), end = addDays(mon, 6);
+    return (mon.getMonth() === end.getMonth() ? mon.getDate() : fmt(mon)) + "–" + fmt(end);
+  }
+  function longMiles(i) { return WEEKS[i].race ? 21.1 : WEEKS[i].sun; }
+
+  const today = midnight(new Date());
+  const nowIndex = Math.max(0, Math.min(WEEKS.length - 1, Math.floor(dayDiff(today, START) / 7)));
+
+  function buildWeeks() {
+    let html = "";
+    WEEKS.forEach((w, i) => {
+      const n = i + 1, ph = phaseOf(n);
+      if (ph.from === n) html += '<div class="phase-head"><h3>' + ph.name + ': weeks ' + ph.from + '–' + ph.to + '</h3><p class="small muted">' + ph.about + '</p></div>';
+      const rows = [];
+      ALL[i].forEach(s => rows.push({ day: s.day, html: rowHtml(s) }));
+      const restDay = 4;
+      rows.push({ day: restDay, html: '<div class="row static"><span class="day"><b>' + DAY_NAMES[restDay] + '</b>' + fmt(addDays(START, i * 7 + restDay)) + '</span><span></span><span>Rest day</span></div>' });
+      rows.sort((a, b) => a.day - b.day);
+      const foodRow = '<label class="row t-food"><span class="day"><b>Week</b>focus</span><input type="checkbox" data-id="' + FOOD_IDS[i] + '" id="' + FOOD_IDS[i] + '"><span class="row-text"><span class="row-title"><span>Nutrition habit</span><span class="chip">Nutrition</span></span><span class="row-detail">' + w.food + '</span></span></label>';
+      const meta = w.race ? "Race on Sunday 4 April" : "Long run " + w.sun + " km · " + (w.tue + PARKRUN_KM + w.sun) + " outdoor km";
+      html += '<details class="week' + (i === nowIndex ? " now" : "") + '" id="week' + n + '"' + (i === nowIndex ? " open" : "") + '>' +
+        '<summary><span class="week-name">Week ' + n + ' <span class="muted" style="font-weight:600">' + weekDates(i) + '</span>' +
+        (i === nowIndex && dayDiff(today, START) >= 0 ? '<span class="pill here">This week</span>' : i === nowIndex ? '<span class="pill here">Starts here</span>' : "") +
+        (markFor(n) >= 0 ? '<span class="pill mark">Lights up ' + LANDMARKS[markFor(n)].name + '</span>' : "") + (w.cut ? '<span class="pill">Lighter week</span>' : "") + (w.race ? '<span class="pill">Race week</span>' : "") + '</span>' +
+        '<span class="week-count" data-count="' + i + '"></span><span class="week-meta">' + meta + '</span></summary>' +
+        '<div class="week-body">' + (w.note ? '<p class="week-note">' + w.note + '</p>' : "") + rows.map(r => r.html).join("") + foodRow + '</div></details>';
+    });
+    $("weeks").innerHTML = html;
+  }
+
+  function buildSky() {
+    $("lmList").innerHTML = LANDMARKS.map((l, i) => '<div class="lm-item" data-item="' + i + '"><b>' + l.name + '</b>' + WEEKS[l.week - 1].sun + ' km · week ' + l.week + '</div>').join("");
+  }
+
+  function buildChart() {
+    const H = 21.1;
+    $("axis").innerHTML = [0, 5, 10, 15, 21.1].map(v => '<span style="bottom:' + (v / H * 100) + '%">' + v + '</span>').join("");
+    $("gridlines").innerHTML = [5, 10, 15, 21.1].map(v => '<div class="grid" style="bottom:' + (v / H * 100) + '%"></div>').join("");
+    $("bars").innerHTML = WEEKS.map((w, i) => '<button type="button" class="bar' + (w.race ? " race" : "") + (i === nowIndex ? " now" : "") + '" data-week="' + (i + 1) + '" aria-label="Week ' + (i + 1) + ', ' + weekDates(i) + ', ' + (w.race ? "race, 21.1 kilometres" : "long run " + w.sun + " kilometres") + '">' + (markFor(i + 1) >= 0 ? '<svg viewBox="' + LANDMARKS[markFor(i + 1)].view + '" aria-hidden="true"><use href="#lm' + markFor(i + 1) + '"/></svg>' : "") + '<i style="height:' + (longMiles(i) / H * 100) + '%"></i></button>').join("");
+    const firsts = [[1, "Nov"], [4, "Dec"], [8, "Jan"], [13, "Feb"], [17, "Mar"], [21, "Apr"]];
+    $("months").innerHTML = firsts.map(([wk, m]) => '<span style="grid-column:' + wk + '">' + m + '</span>').join("");
+    $("phaseScale").innerHTML = PHASES.map(p => '<span style="grid-column:' + p.from + ' / ' + (p.to + 1) + '">' + p.name + '</span>').join("");
+  }
+
+  /* State */
+  const KEY = "road-to-13-1-ticks";
+  let done = new Set();
+  try { done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) {}
+  let locked = false;
+
+  function round1(x) { return Math.round(x * 10) / 10; }
+  function refresh() {
+    document.querySelectorAll("input[data-id]").forEach(el => { el.checked = done.has(el.dataset.id); el.disabled = locked; });
+    const sDone = FLAT.filter(s => done.has(s.id)).length;
+    const mDone = FLAT.reduce((a, s) => a + (done.has(s.id) ? s.km : 0), 0);
+    const nDone = FOOD_IDS.filter(id => done.has(id)).length;
+    $("sDone").textContent = sDone; $("sTotal").textContent = FLAT.length; $("sBar").style.width = sDone / FLAT.length * 100 + "%";
+    $("mDone").textContent = round1(mDone); $("mTotal").textContent = round1(TOTAL_KM); $("mBar").style.width = mDone / TOTAL_KM * 100 + "%";
+    $("nDone").textContent = nDone; $("nTotal").textContent = FOOD_IDS.length; $("nBar").style.width = nDone / FOOD_IDS.length * 100 + "%";
+    ALL.forEach((list, i) => {
+      const c = list.filter(s => done.has(s.id)).length;
+      const el = document.querySelector('[data-count="' + i + '"]');
+      el.textContent = c + "/" + list.length;
+      el.classList.toggle("complete", c === list.length);
+      const longRun = list.find(s => s.day === 6);
+      document.querySelector('.bar[data-week="' + (i + 1) + '"]').classList.toggle("done", !WEEKS[i].race && done.has(longRun.id));
+    });
+    LANDMARKS.forEach((l, i) => {
+      const lit = done.has("w" + l.week + "-sun");
+      document.querySelector('.lm[data-lm="' + i + '"]').classList.toggle("lit", lit);
+      document.querySelector('[data-item="' + i + '"]').classList.toggle("lit", lit);
+    });
+    document.getElementById("bus").style.transform = "translateX(" + (6 + sDone / FLAT.length * 820) + "px)";
+    renderNext();
+  }
+  function renderNext() {
+    const s = FLAT.find(x => !done.has(x.id) && dayDiff(x.date, today) >= 0);
+    const box = $("next");
+    if (!s) { box.innerHTML = '<p class="muted">Nothing left on the schedule. Congratulations on 21.1 km.</p>'; return; }
+    const gap = dayDiff(s.date, today);
+    const when = gap === 0 ? "Today" : gap === 1 ? "Tomorrow" : "In " + gap + " days";
+    box.innerHTML = '<p class="small muted" style="margin-bottom:8px">' + when + ' · Week ' + s.week + '</p>' + rowHtml(s, true);
+    const input = box.querySelector("input");
+    input.checked = done.has(s.id); input.disabled = locked;
+  }
+  function renderCountdown() {
+    const d = dayDiff(RACE, today);
+    $("days").textContent = d > 0 ? d : d === 0 ? "21.1" : "✓";
+    $("daysLabel").textContent = d > 1 ? "days to go" : d === 1 ? "day to go" : d === 0 ? "race day" : "race complete";
+  }
+
+  /* Saving */
+  let store = null, pending = null, writing = false, saveTimer = null;
+  const status = t => { $("saveStatus").textContent = t; };
+  function persistLocal() { try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch (e) {} }
+  function body() { return { done: [...done].sort(), updatedAt: new Date().toISOString() }; }
+  async function flush() {
+    if (writing || !store) return;
+    writing = true;
+    try {
+      while (pending) {
+        const data = pending; pending = null;
+        status("Saving…");
+        try { await store.set(data); }
+        catch (e) {
+          if (e && e.code === "unavailable") {
+            await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
+            await store.set(data);
+          } else { throw e; }
+        }
+      }
+      status("All ticks saved. They'll show on any device you open this on.");
+    } catch (e) {
+      if (e && e.code === "invalid_argument") { locked = true; refresh(); status("This copy is read-only, so ticks can't be changed here."); }
+      else status("Your latest ticks are saved in this browser only. Tick again when you're back online to sync them.");
+    } finally { writing = false; }
+  }
+  function queueSave() {
+    persistLocal();
+    if (!store) { status("Saved in this browser."); return; }
+    pending = body();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flush, 400);
+  }
+
+  document.addEventListener("change", e => {
+    const el = e.target;
+    if (!el.matches || !el.matches("input[data-id]")) return;
+    if (el.checked) done.add(el.dataset.id); else done.delete(el.dataset.id);
+    const keepNext = !!el.closest("#next");
+    refresh();
+    if (keepNext) { const again = $("next").querySelector("input"); if (again) again.focus(); }
+    queueSave();
+  });
+  document.addEventListener("click", e => {
+    const bar = e.target.closest && e.target.closest(".bar");
+    if (!bar) return;
+    const wk = $("week" + bar.dataset.week);
+    wk.open = true;
+    wk.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    wk.querySelector("summary").focus({ preventScroll: true });
+  });
+
+  async function connect() {
+    if (!window.claude || !window.claude.use) return;
+    const db = await window.claude.use("db");
+    if (!db) { status("Saved in this browser. Sign in to keep ticks across devices."); return; }
+    const user = await window.claude.use("user");
+    if (user && (await user.isOwner()) === false) { locked = true; refresh(); status("You're viewing this plan read-only."); }
+    store = db.doc("progress/ticks");
+    let settled = false;
+    const timer = setTimeout(() => { if (!settled) status("Can't reach saved ticks yet. Showing what's saved in this browser."); }, 10000);
+    store.onSnapshot(snap => {
+      if (!snap.metadata.fromCache) { settled = true; clearTimeout(timer); }
+      if (snap.metadata.hasPendingWrites || pending || writing) return;
+      if (snap.exists) {
+        const remote = snap.data().done;
+        if (Array.isArray(remote)) { done = new Set(remote); persistLocal(); refresh(); if (!locked && !snap.metadata.fromCache) status("All ticks saved. They'll show on any device you open this on."); }
+      } else if (!snap.metadata.fromCache && !locked && done.size) {
+        pending = body(); flush();
+      } else if (!snap.metadata.fromCache && !locked) {
+        status("Your ticks save automatically and show on any device you open this on.");
+      }
+    }, () => { clearTimeout(timer); status("Saved in this browser. Syncing is unavailable right now."); store = null; });
+  }
+
+  buildWeeks();
+  buildChart();
+  buildSky();
+  renderCountdown();
+  refresh();
+  connect();
+})();
+</script>
